@@ -33,6 +33,9 @@ then run:
     vcf.preprocessingData()
     vcf.parseEncoding()
     vcf.fullVCF()
+If you have edited a vcf and want to print the new vcf in the correct vcf format,
+then run the following.
+    vcf.writeVCF(output = <outout path file name>)
 
 
 '''
@@ -202,7 +205,7 @@ class VCF:
         # Header
         #~~~~~~~~~~~~~
         # Open the new file and write the header 
-        header = vcf.vcf_header
+        header = self.vcf_header
         with open(output,'w') as csv_file:
             ## Format the header into a string
             header[-1] = ["\t".join(header[-1])]
