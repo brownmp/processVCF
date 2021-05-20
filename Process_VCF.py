@@ -39,6 +39,13 @@ then run the following.
 
 
 '''
+def unique(list_obj):
+    unique_list = []
+    for i in list_obj:
+        if i not in unique_list:
+            unique_list.append(i)
+    return unique_list
+
 
 class VCF:
     '''
@@ -83,7 +90,13 @@ class VCF:
         logger.info("Processing the VCF")
         vcf_header = []
         vcf_dic = {}
-        vcf = open( self.vcf_path, "r" )
+
+        # Check if the file was gunzipped and treat it appropriately
+        if self.vcf_path.endswith('.gz'):
+            vcf = gzip.open( self.vcf_path, mode='rt' )
+        else:
+            vcf = open( self.vcf_path, "r" )
+
         for line in csv.reader(vcf, delimiter = "\t"):
             # check to see if header, is so append the line to header 
             if line[0][0] == "#":
@@ -160,13 +173,23 @@ class VCF:
         '''
         logger.info("Parsing the encoding.")
         
-        # Column header for the encoding columns 
-        column_names = self.vcf.FORMAT.iloc[0,].split(":")
-        # parse the encoding column 
-        encoding = self.vcf.ENCODING.str.split(":",expand=True)
-        # add the new column headers 
-        encoding.columns = column_names
-        self.encoding = encoding
+        # Get all possible names 
+        FORMAT_row_lists = list(self.vcf.FORMAT.str.split(":"))
+        total = [j for i in FORMAT_row_lists for j in i]
+        column_names = unique(total)
+
+        # Parse the encodings 
+        encoding = self.vcf.ENCODING.str.split(":")
+        # go over each row and combine the FORMAT with the ENCODING
+        all_rows = []
+        for i in range(len(FORMAT_row_lists)):
+            # make the dictionary and append to list 
+            a = dict(zip(FORMAT_row_lists[i], encoding[i]))
+            all_rows.append(a)
+        # convert the list dictionaries into a dataframe 
+        encoding_df = pd.DataFrame(all_rows)
+        
+        self.encoding = encoding_df
         
         return self
 
