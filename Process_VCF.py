@@ -30,7 +30,7 @@ can be used by sourcing this file in python:
 then run:
     vcf = VCF("path_to_VCF_file")
     vcf.configure_vcf()
-    vcf.preprocessingData()
+    vcf.parseINFO()
     vcf.parseEncoding()
     vcf.fullVCF()
 If you have edited a vcf and want to print the new vcf in the correct vcf format,
@@ -115,9 +115,10 @@ class VCF:
         return( self )
 
 
-    def preprocessingData(self):
+    def parseINFO(self):
         '''
-        Load in the data VCF then convert info column into pandas dataframe 
+        Parse the vcf INFO Column 
+            Load in the data VCF then convert INFO column into pandas dataframe 
         '''
 
         logger.info("Processing the input data.")
@@ -169,7 +170,7 @@ class VCF:
 
     def parseEncoding(self):
         '''
-        Parse the encoding column in the VCF
+        Parse the ENCODING column in the VCF
         '''
         logger.info("Parsing the encoding.")
         
