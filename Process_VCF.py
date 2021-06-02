@@ -9,6 +9,7 @@ import numpy as np
 import csv, os, sys, re
 import logging
 import argparse
+import gzip
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s : %(levelname)s : %(message)s',
@@ -105,8 +106,12 @@ class VCF:
             # else append the line to the dictionary based on the chromosome
             chromosome = line[0]
             position = line[1]
-            new_key = str(chromosome) + ":" + str(position)
-            vcf_dic[new_key]= line
+            REF = line[3]
+            ALT = line[4]
+            new_key = str(chromosome) + ":" + str(position) + ":" + str(REF) + ":" + str(ALT)
+            if new_key in vcf_dic: #vcf_dic.has_key(new_key):
+                logger.warning("Two varinats with the same ID were found: \n\t{} \n\tDuplicates could be present".format(new_key))
+            vcf_dic[new_key] = line
         vcf.close()
 
         # Add the vcf header and body to the new object 
@@ -121,7 +126,7 @@ class VCF:
             Load in the data VCF then convert INFO column into pandas dataframe 
         '''
 
-        logger.info("Processing the input data.")
+        logger.info("Processing the VCF INFO")
         
         ## subset the data to get the get 'Chr', 'Pos','REF','ALT'
         df_vcf_subset = self.vcf[['CHROM', 'POS','REF','ALT']]
